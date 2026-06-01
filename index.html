@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>新規取扱い希望店様　情報入力フォーム</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Arvo&family=Zen+Kaku+Gothic+New:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   変数・リセット（style.cssに準拠）
+============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --text:    #1a1a1a;
+  --text-s:  #888880;
+  --white:   #ffffff;
+  --green:   #00EB00;
+  --green-l: #e6ffe6;
+  --font-jp: 'Zen Kaku Gothic New', 'Hiragino Kaku Gothic ProN', sans-serif;
+  --font-en: 'Arvo', Georgia, serif;
+  --max-w:   1000px;
+  --pad-x:   40px;
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-jp);
+  color: var(--text);
+  background: var(--white);
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+
+/* ============================================================
+   ヘッダー（style.cssと同一）
+============================================================ */
+header {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 100; background: var(--white); height: 60px;
+  border-bottom: 1px solid #f0f0f0;
+}
+header .inner {
+  max-width: var(--max-w); margin: 0 auto; padding: 0 var(--pad-x);
+  height: 100%; display: flex; align-items: center; justify-content: space-between;
+}
+#headerLogo a {
+  font-family: var(--font-jp); font-size: 16px; font-weight: 700;
+  letter-spacing: 0.04em; color: var(--text);
+}
+#headerLogo .sub {
+  font-family: var(--font-en); font-size: 10px; color: var(--text-s);
+  letter-spacing: 0.08em; display: block; line-height: 1; margin-top: 2px;
+}
+.header-back {
+  font-size: 12px; color: var(--text-s); letter-spacing: 0.06em;
+  display: flex; align-items: center; gap: 6px; transition: color 0.2s;
+}
+.header-back:hover { color: var(--text); }
+.header-back::before { content: '←'; font-family: var(--font-en); }
+
+/* ============================================================
+   メインビジュアル（style.css #mv に準拠）
+============================================================ */
+#mv { margin-top: 60px; padding: 80px var(--pad-x) 64px; border-bottom: 1px solid #f0f0f0; }
+.mv-inner { max-width: var(--max-w); margin: 0 auto; }
+.mv-eyebrow {
+  font-family: var(--font-en); font-size: 11px; color: var(--text-s);
+  letter-spacing: 0.25em; margin-bottom: 24px;
+  display: flex; align-items: center; gap: 14px;
+}
+.mv-eyebrow::before { content: ''; width: 24px; height: 2px; background: var(--green); display: inline-block; }
+.mv-title {
+  font-size: clamp(36px, 6vw, 64px); font-weight: 700;
+  line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 24px;
+}
+.mv-title .en {
+  font-family: var(--font-en); font-size: clamp(11px, 1.8vw, 13px);
+  font-weight: 400; color: var(--text-s); display: block;
+  letter-spacing: 0.18em; margin-bottom: 10px;
+}
+.mv-lead { font-size: 15px; color: var(--text-s); max-width: 560px; line-height: 2; }
+.req-note { color: #d00; font-size: 12px; margin-top: 8px; display: block; }
+
+/* ============================================================
+   フォーム本体エリア
+============================================================ */
+#form-area { padding: 72px var(--pad-x); max-width: var(--max-w); margin: 0 auto; }
+
+/* アラート */
+.alert {
+  display: none; padding: 14px 18px; margin-bottom: 32px;
+  font-size: 13px; border-left: 3px solid;
+}
+.alert.err  { border-color: #d00; background: #fff5f5; color: #c00; }
+.alert.ok   { border-color: var(--green); background: var(--green-l); color: #1a1a1a; }
+.alert.show { display: block; }
+
+/* Webhookバナー */
+.webhook-banner {
+  padding: 14px 18px; margin-bottom: 32px; font-size: 13px;
+  border-left: 3px solid #f5a623; background: #fffbf0;
+  color: #7a5200; display: none;
+}
+.webhook-banner.show { display: block; }
+
+/* ============================================================
+   セクション（style.css .nav-card パターンを踏襲）
+============================================================ */
+.form-section {
+  position: relative; margin-bottom: 56px;
+  padding-top: 3px; /* top borderのため */
+}
+.form-section::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 32px; height: 3px; background: var(--green);
+  transition: width 0.35s ease;
+}
+/* セクション見出し */
+.s-eyebrow {
+  font-family: var(--font-en); font-size: 10px; color: var(--text-s);
+  letter-spacing: 0.25em; display: flex; align-items: center;
+  gap: 12px; margin-bottom: 14px; padding-top: 20px;
+}
+.s-title {
+  font-size: clamp(18px, 3vw, 22px); font-weight: 700;
+  letter-spacing: -0.01em; margin-bottom: 28px;
+  padding-bottom: 16px; border-bottom: 1px solid #f0f0f0;
+}
+
+/* ============================================================
+   フィールド
+============================================================ */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+.field  { margin-bottom: 20px; }
+
+.field label {
+  display: block; font-size: 12px; font-weight: 700;
+  letter-spacing: 0.06em; margin-bottom: 8px; color: var(--text);
+}
+.req-star { color: #d00; margin-left: 4px; }
+
+.field input[type="text"],
+.field input[type="tel"],
+.field input[type="date"],
+.field input[type="time"],
+.field input[type="number"],
+.field select,
+.field textarea {
+  display: block; width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #d8d8d0;
+  background: var(--white);
+  color: var(--text);
+  font-family: var(--font-jp);
+  font-size: 14px; line-height: 1.6;
+  outline: none;
+  transition: border-color 0.2s;
+  appearance: none;
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus { border-color: var(--text); }
+.field textarea { resize: vertical; min-height: 80px; }
+.field select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+
+/* エラー状態 */
+.field.has-err input,
+.field.has-err select,
+.field.has-err textarea { border-color: #d00; }
+.field .err-msg {
+  font-size: 11px; color: #d00; letter-spacing: 0.04em;
+  margin-top: 5px; display: none;
+}
+.field.has-err .err-msg { display: block; }
+
+/* 住所行 */
+.zip-row { display: flex; gap: 12px; align-items: flex-start; }
+.zip-row input { max-width: 140px; }
+.btn-zip {
+  padding: 10px 16px; border: 1px solid #d8d8d0;
+  background: #f8f8f6; color: var(--text);
+  font-family: var(--font-jp); font-size: 12px;
+  font-weight: 700; letter-spacing: 0.06em;
+  cursor: pointer; white-space: nowrap;
+  transition: background 0.2s;
+}
+.btn-zip:hover { background: #f0f0ea; }
+.btn-zip:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.addr-stack { display: grid; gap: 8px; }
+
+/* 時間行 */
+.time-row { display: flex; align-items: center; gap: 12px; }
+.time-row input { flex: 1; }
+.time-sep { font-family: var(--font-en); color: var(--text-s); font-size: 13px; }
+
+/* ============================================================
+   トグルボタン（業態・立地）
+============================================================ */
+.toggle-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+.toggle-btn {
+  padding: 7px 14px; border: 1px solid #d8d8d0;
+  background: var(--white); color: var(--text-s);
+  font-family: var(--font-jp); font-size: 12px;
+  font-weight: 700; letter-spacing: 0.04em;
+  cursor: pointer; transition: all 0.15s;
+}
+.toggle-btn:hover { border-color: var(--text); color: var(--text); }
+.toggle-btn.on {
+  background: var(--green); border-color: var(--green);
+  color: var(--text);
+}
+
+/* ============================================================
+   ラジオ代替（有・無）
+============================================================ */
+.radio-row { display: flex; gap: 8px; }
+.radio-btn {
+  padding: 9px 28px; border: 1px solid #d8d8d0;
+  background: var(--white); color: var(--text-s);
+  font-family: var(--font-jp); font-size: 13px;
+  font-weight: 700; cursor: pointer; transition: all 0.15s;
+}
+.radio-btn:hover { border-color: var(--text); color: var(--text); }
+.radio-btn.on { background: var(--green); border-color: var(--green); color: var(--text); }
+
+/* ============================================================
+   従業員合計ボックス
+============================================================ */
+.total-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px; background: #f8f8f6; border-left: 3px solid var(--green);
+  margin-top: 4px;
+}
+.total-row .lbl { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; color: var(--text-s); }
+.total-row .val { font-family: var(--font-en); font-size: 20px; font-weight: 700; letter-spacing: 0.05em; }
+
+/* ============================================================
+   注釈
+============================================================ */
+.note {
+  font-size: 12px; color: var(--text-s);
+  letter-spacing: 0.04em; line-height: 1.9;
+  margin-bottom: 16px;
+}
+
+/* ============================================================
+   送信ボタン（style.css .btn-apply に準拠）
+============================================================ */
+.btn-submit {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--green); color: var(--text);
+  font-family: var(--font-jp); font-size: 14px; font-weight: 700;
+  padding: 16px 48px; letter-spacing: 0.06em;
+  border: none; cursor: pointer; width: 100%;
+  justify-content: center; transition: opacity 0.2s;
+}
+.btn-submit:hover { opacity: 0.8; }
+.btn-submit:disabled { background: #e8e8e8; color: var(--text-s); cursor: not-allowed; opacity: 1; }
+.btn-submit::after { content: '↗'; font-family: var(--font-en); font-size: 13px; }
+.btn-submit:disabled::after { display: none; }
+.submit-note {
+  font-size: 11px; color: var(--text-s); letter-spacing: 0.06em;
+  text-align: center; margin-top: 16px;
+}
+
+/* ============================================================
+   完了画面
+============================================================ */
+#success { display: none; padding: 120px var(--pad-x); text-align: center; }
+#success .mv-eyebrow { justify-content: center; }
+#success h2 { font-size: clamp(28px, 5vw, 48px); font-weight: 700; letter-spacing: -0.02em; margin: 16px 0 24px; }
+#success p { font-size: 14px; color: var(--text-s); line-height: 2; }
+.btn-again {
+  display: inline-block; margin-top: 36px;
+  padding: 14px 36px; border: 1px solid var(--text);
+  background: var(--white); color: var(--text);
+  font-family: var(--font-jp); font-size: 13px; font-weight: 700;
+  letter-spacing: 0.06em; cursor: pointer; transition: background 0.2s;
+}
+.btn-again:hover { background: #f0f0ea; }
+
+/* ============================================================
+   確認モーダル
+============================================================ */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.4); overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.modal-overlay.show { display: block; }
+.modal-box {
+  background: var(--white); max-width: 720px;
+  margin: 48px auto 80px; padding: 56px 48px;
+}
+.modal-eyebrow {
+  font-family: var(--font-en); font-size: 10px; color: var(--text-s);
+  letter-spacing: 0.25em; display: flex; align-items: center;
+  gap: 12px; margin-bottom: 16px;
+}
+.modal-eyebrow::before { content: ''; width: 24px; height: 2px; background: var(--green); display: inline-block; }
+.modal-title {
+  font-size: clamp(20px, 4vw, 28px); font-weight: 700;
+  letter-spacing: -0.02em; margin-bottom: 8px;
+}
+.modal-lead { font-size: 13px; color: var(--text-s); margin-bottom: 40px; line-height: 1.8; }
+.confirm-section { margin-bottom: 36px; }
+.confirm-section-title {
+  font-family: var(--font-en); font-size: 10px; color: var(--text-s);
+  letter-spacing: 0.2em; padding-bottom: 10px;
+  border-bottom: 1px solid #f0f0f0; margin-bottom: 4px;
+}
+.confirm-row {
+  display: flex; align-items: baseline; gap: 16px;
+  padding: 9px 0; border-bottom: 1px solid #f8f8f6;
+}
+.confirm-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+  color: var(--text-s); width: 180px; flex-shrink: 0;
+}
+.confirm-value { font-size: 14px; flex: 1; line-height: 1.7; word-break: break-all; }
+.confirm-empty { color: #ccc; font-size: 13px; }
+.modal-actions {
+  display: flex; gap: 12px; margin-top: 48px;
+}
+.btn-modal-back {
+  flex: 1; padding: 14px; border: 1px solid #d8d8d0;
+  background: var(--white); color: var(--text-s);
+  font-family: var(--font-jp); font-size: 13px; font-weight: 700;
+  letter-spacing: 0.06em; cursor: pointer; transition: all 0.15s;
+}
+.btn-modal-back:hover { border-color: var(--text); color: var(--text); }
+.btn-modal-send {
+  flex: 2; padding: 14px; border: none;
+  background: var(--green); color: var(--text);
+  font-family: var(--font-jp); font-size: 14px; font-weight: 700;
+  letter-spacing: 0.06em; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: opacity 0.2s;
+}
+.btn-modal-send:hover { opacity: 0.8; }
+.btn-modal-send:disabled { background: #e8e8e8; color: var(--text-s); cursor: not-allowed; opacity: 1; }
+.btn-modal-send::after { content: '↗'; font-family: var(--font-en); font-size: 13px; }
+.btn-modal-send:disabled::after { display: none; }
+@media (max-width: 768px) {
+  .modal-box { margin: 0; padding: 40px var(--pad-x) 80px; }
+  .confirm-label { width: 130px; }
+  .modal-actions { flex-direction: column; }
+}
+
+/* ============================================================
+   フッター（style.cssと同一）
+============================================================ */
+footer { padding: 36px var(--pad-x); text-align: center; font-size: 11px; color: var(--text-s); letter-spacing: 0.08em; border-top: 1px solid #f0f0f0; }
+
+/* ============================================================
+   フェードイン
+============================================================ */
+.fade-in { opacity: 0; transform: translateY(16px); transition: opacity 0.55s ease, transform 0.55s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ============================================================
+   レスポンシブ（style.cssと同一）
+============================================================ */
+@media (max-width: 768px) {
+  :root { --pad-x: 20px; }
+  #mv { padding: 56px var(--pad-x) 48px; }
+  #form-area { padding: 48px var(--pad-x); }
+  .grid-2 { grid-template-columns: 1fr; gap: 0; }
+  .grid-3 { grid-template-columns: 1fr; gap: 0; }
+  .zip-row { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+
+<!-- ヘッダー -->
+<header>
+  <div class="inner">
+    <div id="headerLogo">
+      <a href="#">仁井田本家</a>
+    </div>
+    <a class="header-back" href="#">トップへ戻る</a>
+  </div>
+</header>
+
+<!-- メインビジュアル -->
+<div id="mv">
+  <div class="mv-inner">
+    <h1 class="mv-title">
+      <span class="en"></span>
+      新規取扱い希望店様<br>情報入力フォーム
+    </h1>
+    <p class="mv-lead">はじめてお取引をご希望の酒販店様は、以下のフォームにご記入のうえ送信してください。<br>内容を確認の上、担当者よりご連絡いたします。</p>
+    <span class="req-note">* は必須項目です</span>
+  </div>
+</div>
+
+<!-- フォーム -->
+<div id="form-area">
+
+  <!-- アラート類 -->
+  <div id="webhook-banner" class="webhook-banner">⚙ <strong>送信先が未設定です。</strong> HTMLファイル内の <code>WEBHOOK_URL</code> をn8nのWebhook URLに書き換えてください。</div>
+  <div id="alert-err" class="alert err">入力内容をご確認ください。必須項目または形式に誤りがあります。</div>
+  <div id="alert-net" class="alert err">送信に失敗しました。しばらく時間をおいて再度お試しください。</div>
+
+  <!-- ① 基本情報 -->
+  <div class="form-section fade-in">
+    <h2 class="s-title">基本情報</h2>
+    <div class="grid-2">
+      <div class="field" id="f-店名">
+        <label>店名<span class="req-star">*</span></label>
+        <input type="text" id="店名" placeholder="○○酒販店">
+        <p class="err-msg">店名を入力してください</p>
+      </div>
+      <div class="field">
+        <label>免許取得名</label>
+        <input type="text" id="免許取得名" placeholder="法人名・屋号">
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>フリガナ</label>
+        <input type="text" id="フリガナ" placeholder="カタカナ" oninput="toKatakana(this)">
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 所在地・連絡先 -->
+  <div class="form-section fade-in">
+    <h2 class="s-title">所在地・連絡先</h2>
+
+    <div class="field" id="f-郵便番号">
+      <label>郵便番号</label>
+      <div class="zip-row">
+        <input type="text" id="郵便番号" placeholder="000-0000" maxlength="8" oninput="onZipInput(this)">
+        <button class="btn-zip" onclick="fetchAddress()" id="zip-btn">住所を自動入力</button>
+      </div>
+      <p class="err-msg" id="zip-err">7桁の郵便番号を入力してください</p>
+    </div>
+
+    <div class="field" id="f-住所">
+      <label>住所<span class="req-star">*</span></label>
+      <div class="addr-stack">
+        <input type="text" id="都道府県" placeholder="都道府県">
+        <input type="text" id="市区町村" placeholder="市区町村・町名">
+        <input type="text" id="番地以降" placeholder="番地・建物名・部屋番号">
+      </div>
+      <p class="err-msg">住所を入力してください</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="field" id="f-電話番号">
+        <label>電話番号<span class="req-star">*</span></label>
+        <input type="tel" id="電話番号" placeholder="000-0000-0000">
+        <p class="err-msg">正しい電話番号を入力してください</p>
+      </div>
+      <div class="field" id="f-FAX番号">
+        <label>FAX番号</label>
+        <input type="tel" id="FAX番号" placeholder="000-0000-0000">
+        <p class="err-msg">正しい形式で入力してください</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ 代表者情報 -->
+  <div class="form-section fade-in">
+    <h2 class="s-title">代表者情報</h2>
+    <div class="grid-2">
+      <div class="field">
+        <label>代表者氏名</label>
+        <input type="text" id="代表者氏名" placeholder="氏名">
+      </div>
+      <div class="field">
+        <label>代表者生年月日</label>
+        <input type="date" id="代表者生年月日">
+      </div>
+    </div>
+  </div>
+
+  <!-- ④ 後継者情報 -->
+  <div class="form-section fade-in">
+    <h2 class="s-title">後継者情報</h2>
+    <div class="grid-2">
+      <div class="field">
+        <label>後継者氏名</label>
+        <input type="text" id="後継者氏名" placeholder="氏名">
+      </div>
+      <div class="field">
+        <label>後継者生年月日</label>
+        <input type="date" id="後継者生年月日">
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>後継者状況</label>
+        <select id="後継者状況">
+          <option value="">選択してください</option>
+          <option>自店勤務</option>
+          <option>他店勤務</option>
+          <option>学生</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>後継者役職</label>
+        <input type="text" id="後継者役職" placeholder="役職">
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑤ 従業員構成 -->
+  <div class="form-section fade-in">
+    <h2 class="s-title">従業員構成</h2>
+    <div class="grid-3">
+      <div class="field" id="f-社員数">
+        <label>社員（人）</label>
+        <input type="number" id="社員数" min="0" placeholder="0" oninput="calcTotal()">
+        <p class="err-msg">数値を入力してください</p>
+      </div>
+      <div class="field" id="f-パート数">
+        <label>パート（人）</label>
+        <input type="number" id="パート数" min="0" placeholder="0" oninput="calcTotal()">
+        <p class="err-msg">数値を入力してください</p>
+      </div>
+      <div class="field" id="f-アルバイト数">
+        <label>アルバイト（人）</label>
+        <input type="number" id="アルバイト数" min="0" placeholder="0" oninput="calcTotal()">
+        <p class="err-msg">数値を入力してください</p>
+      </div>
+    </div>
+    <div class="total-row">
+      <span class="lbl">従業員合計（自動計算）</span>
+      <span class="val" id="total-display">0 人</span>
+    </div>
+  </div>
+
+  <!-- ⑥ 業態・立地・経営 -->
+  <div class="form-section fade-in">
+    <h2 class="s-title">業態・立地・経営理念</h2>
+
+    <div class="field">
+      <label>経営理念</label>
+      <textarea id="経営理念" placeholder="経営理念をご記入ください"></textarea>
+    </div>
+
+    <div class="field" id="f-業態">
+      <label>業態<span class="req-star">*</span></label>
+      <div class="toggle-wrap" id="業態-group"></div>
+      <p class="err-msg">業態を1つ以上選択してください</p>
+    </div>
+
+    <div class="field" id="f-立地">
+      <label>立地<span class="req-star">*</span></label>
+      <div class="toggle-wrap" id="立地-group"></div>
+      <p class="err-msg">立地を1つ以上選択してください</p>
+    </div>
+  </div>
+
+  <!-- ⑦ 営業情報 -->
+  <div class="form-section fade-in">
+    <h2 class="s-title">営業情報</h2>
+    <div class="field">
+      <label>営業時間</label>
+      <div class="time-row">
+        <input type="time" id="営業時間開始">
+        <span class="time-sep">—</span>
+        <input type="time" id="営業時間終了">
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>定休日</label>
+        <input type="text" id="定休日" placeholder="例：毎週水曜日">
+      </div>
+      <div class="field">
+        <label>最寄り駅</label>
+        <input type="text" id="最寄り駅" placeholder="○○線 △△駅">
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑧ 日本酒への取り組み -->
+  <div class="form-section fade-in">
+    <h2 class="s-title">日本酒への取り組みと営業方針</h2>
+    <p class="note">※お取引させて頂く上で最重要視させて頂いております。出来るだけ詳しくご記入ください。</p>
+    <div class="field">
+      <label></label>
+      <textarea id="日本酒への取り組みと営業方針" style="min-height:120px" placeholder="日本酒への取り組みや営業方針をご記入ください"></textarea>
+    </div>
+  </div>
+
+  <!-- ⑨ 売上・仕入 -->
+  <div class="form-section fade-in">
+    <h2 class="s-title">売上・仕入情報</h2>
+    <div class="grid-2">
+      <div class="field" id="f-年間売上高">
+        <label>年間売上高（千円）</label>
+        <input type="number" id="年間売上高" min="0" placeholder="0">
+        <p class="err-msg">数値を入力してください</p>
+      </div>
+      <div class="field" id="f-内清酒売上高">
+        <label>内 清酒売上高（千円）</label>
+        <input type="number" id="内清酒売上高" min="0" placeholder="0">
+        <p class="err-msg">数値を入力してください</p>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>仕入担当者</label>
+        <input type="text" id="仕入担当者" placeholder="氏名">
+      </div>
+      <div class="field">
+        <label>仕入担当者役職</label>
+        <input type="text" id="仕入担当者役職" placeholder="役職">
+      </div>
+    </div>
+    <div class="field">
+      <label>主な取扱い日本酒銘柄</label>
+      <textarea id="主な取扱い日本酒銘柄" placeholder="銘柄名をご記入ください"></textarea>
+    </div>
+    <div class="field">
+      <label>内 重点銘柄</label>
+      <input type="text" id="重点銘柄" placeholder="重点的に取り扱っている銘柄">
+    </div>
+  </div>
+
+  <!-- ⑩ 店舗概況 -->
+  <div class="form-section fade-in">
+    <h2 class="s-title">店舗概況</h2>
+    <div class="grid-2">
+      <div class="field" id="f-売場面積">
+        <label>売場面積（坪）</label>
+        <input type="number" id="売場面積" min="0" step="0.1" placeholder="0">
+        <p class="err-msg">数値を入力してください</p>
+      </div>
+      <div class="field" id="f-倉庫面積">
+        <label>倉庫面積（坪）</label>
+        <input type="number" id="倉庫面積" min="0" step="0.1" placeholder="0">
+        <p class="err-msg">数値を入力してください</p>
+      </div>
+    </div>
+    <div class="field">
+      <label>清酒用リーチインクーラー</label>
+      <input type="text" id="清酒用リーチインクーラー" placeholder="例：2面・設定温度5℃">
+    </div>
+    <div class="field">
+      <label>空調設備</label>
+      <div class="radio-row">
+        <button class="radio-btn" onclick="selectRadio('空調設備','有',this)">有</button>
+        <button class="radio-btn" onclick="selectRadio('空調設備','無',this)">無</button>
+      </div>
+      <input type="hidden" id="空調設備" value="">
+    </div>
+  </div>
+
+  <!-- ⑪ お問い合わせ経緯 -->
+  <div class="form-section fade-in">
+    <h2 class="s-title">お問い合わせに至る経緯</h2>
+    <p class="note">※出来るだけ詳しくお願いいたします。</p>
+    <div class="field">
+      <textarea id="問い合わせに至る経緯" style="min-height:120px" placeholder="お問い合わせに至った経緯をご記入ください"></textarea>
+    </div>
+  </div>
+
+  <!-- 確認ボタン -->
+  <button class="btn-submit" onclick="showConfirm()" id="confirm-btn">内容の確認</button>
+  <p class="submit-note">送信前に入力内容をご確認いただけます</p>
+
+</div><!-- /#form-area -->
+
+<!-- 確認モーダル -->
+<div id="confirm-modal" class="modal-overlay" onclick="onModalOverlayClick(event)">
+  <div class="modal-box">
+    <p class="modal-eyebrow">CONFIRMATION</p>
+    <h2 class="modal-title">入力内容のご確認</h2>
+    <p class="modal-lead">以下の内容で送信します。<br>修正がある場合は「修正する」を押してフォームに戻ってください。</p>
+    <div id="confirm-body"></div>
+    <div class="modal-actions">
+      <button class="btn-modal-back" onclick="closeConfirm()">← 修正する</button>
+      <button class="btn-modal-send" onclick="handleSubmit()" id="submit-btn">この内容で送信する</button>
+    </div>
+  </div>
+</div>
+
+<!-- 完了 -->
+<div id="success">
+  <div class="mv-inner" style="max-width:600px;margin:0 auto">
+    <p class="mv-eyebrow" style="justify-content:center">THANK YOU</p>
+    <h2 style="font-size:clamp(28px,5vw,48px);font-weight:700;letter-spacing:-0.02em;margin:16px 0 24px">送信が完了しました</h2>
+    <p style="font-size:14px;color:var(--text-s);line-height:2">お問い合わせいただきありがとうございます。<br>内容を確認の上、担当者よりご連絡いたします。</p>
+    <button class="btn-again" onclick="resetForm()">新しく送信する</button>
+  </div>
+</div>
+
+<footer>
+  <p class="copyright" style="font-family:var(--font-en)">© 2025 All Rights Reserved.</p>
+</footer>
+
+<script>
+/* ============================================================
+   設定：n8n WebhookのURLをここに貼り付け
+============================================================ */
+const WEBHOOK_URL = "http://192.168.1.106:5678/webhook/niida-inquiry";
+
+const BUSINESS_TYPES = ['一般酒販店','地酒専門店','業務用酒販店','DS','量販店','チェーンCVS','単独CVS','スーパー内テナント','その他'];
+const LOCATION_TYPES = ['繁華商店地','商店街','商住混合地域','住宅地域','オフィス街','料飲街','団地内','ショッピングセンター','その他'];
+const selected = { 業態: [], 立地: [] };
+
+/* トグルグループ生成 */
+function buildToggles(groupId, opts, key) {
+  const el = document.getElementById(groupId);
+  opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'toggle-btn';
+    btn.textContent = opt;
+    btn.onclick = () => {
+      const i = selected[key].indexOf(opt);
+      if (i >= 0) { selected[key].splice(i, 1); btn.classList.remove('on'); }
+      else { selected[key].push(opt); btn.classList.add('on'); }
+    };
+    el.appendChild(btn);
+  });
+}
+buildToggles('業態-group', BUSINESS_TYPES, '業態');
+buildToggles('立地-group', LOCATION_TYPES, '立地');
+
+/* ラジオ代替 */
+function selectRadio(id, val, btn) {
+  document.getElementById(id).value = val;
+  btn.closest('.radio-row').querySelectorAll('.radio-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+/* 従業員合計 */
+function calcTotal() {
+  const s = parseInt(document.getElementById('社員数').value)||0;
+  const p = parseInt(document.getElementById('パート数').value)||0;
+  const a = parseInt(document.getElementById('アルバイト数').value)||0;
+  document.getElementById('total-display').textContent = (s+p+a) + ' 人';
+}
+
+/* フリガナ自動変換（ひらがな→カタカナ） */
+function toKatakana(el) {
+  el.value = el.value.replace(/[ぁ-ゖ]/g, c =>
+    String.fromCharCode(c.charCodeAt(0) + 0x60)
+  );
+}
+
+/* 郵便番号フォーマット */
+function onZipInput(el) {
+  let v = el.value.replace(/\D/g,'').slice(0,7);
+  el.value = v.length > 3 ? v.slice(0,3)+'-'+v.slice(3) : v;
+}
+
+/* 住所自動入力 */
+async function fetchAddress() {
+  const zip = document.getElementById('郵便番号').value.replace('-','');
+  const btn = document.getElementById('zip-btn');
+  const errEl = document.getElementById('zip-err');
+  errEl.style.display = 'none';
+  document.getElementById('f-郵便番号').classList.remove('has-err');
+  if (zip.length !== 7) {
+    document.getElementById('f-郵便番号').classList.add('has-err');
+    errEl.style.display = 'block'; return;
+  }
+  btn.disabled = true; btn.textContent = '検索中…';
+  try {
+    const res = await fetch('https://zipcloud.ibsnet.co.jp/api/search?zipcode=' + zip);
+    const data = await res.json();
+    if (data.results) {
+      const r = data.results[0];
+      document.getElementById('都道府県').value = r.address1;
+      document.getElementById('市区町村').value = r.address2 + (r.address3||'');
+      document.getElementById('番地以降').focus();
+    } else {
+      errEl.textContent = '住所が見つかりませんでした';
+      document.getElementById('f-郵便番号').classList.add('has-err');
+    }
+  } catch {
+    errEl.textContent = '住所の取得に失敗しました';
+    document.getElementById('f-郵便番号').classList.add('has-err');
+  }
+  btn.disabled = false; btn.textContent = '住所を自動入力';
+}
+
+/* バリデーション */
+function v(id) { return (document.getElementById(id)||{}).value||''; }
+function clrErr(id) { document.getElementById('f-'+id)&&document.getElementById('f-'+id).classList.remove('has-err'); }
+function setErr(id) { document.getElementById('f-'+id)&&document.getElementById('f-'+id).classList.add('has-err'); }
+
+function validate() {
+  let ok = true;
+  const phoneRe = /^[\d\-\(\)\s]+$/;
+  ['店名','電話番号','FAX番号','住所','業態','立地','社員数','パート数','アルバイト数','年間売上高','内清酒売上高','売場面積','倉庫面積'].forEach(clrErr);
+  if (!v('店名').trim()) { setErr('店名'); ok=false; }
+  if (!v('電話番号').trim() || !phoneRe.test(v('電話番号'))) { setErr('電話番号'); ok=false; }
+  if (v('FAX番号') && !phoneRe.test(v('FAX番号'))) { setErr('FAX番号'); ok=false; }
+  if (!v('都道府県') && !v('番地以降')) { setErr('住所'); ok=false; }
+  if (!selected.業態.length) { setErr('業態'); ok=false; }
+  if (!selected.立地.length) { setErr('立地'); ok=false; }
+  ['社員数','パート数','アルバイト数','年間売上高','内清酒売上高','売場面積','倉庫面積'].forEach(k => {
+    if (v(k) && isNaN(parseFloat(v(k)))) { setErr(k); ok=false; }
+  });
+  return ok;
+}
+
+/* 送信 */
+async function handleSubmit() {
+  document.getElementById('alert-err').classList.remove('show');
+  document.getElementById('alert-net').classList.remove('show');
+  if (WEBHOOK_URL === "YOUR_N8N_WEBHOOK_URL_HERE") {
+    document.getElementById('webhook-banner').classList.add('show');
+    document.getElementById('webhook-banner').scrollIntoView({behavior:'smooth',block:'nearest'}); return;
+  }
+  if (!validate()) {
+    document.getElementById('alert-err').classList.add('show');
+    document.getElementById('alert-err').scrollIntoView({behavior:'smooth',block:'nearest'}); return;
+  }
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true; btn.textContent = '送信中…';
+  const 住所 = [v('都道府県'),v('市区町村'),v('番地以降')].filter(Boolean).join(' ');
+  const s=parseInt(v('社員数'))||0, p=parseInt(v('パート数'))||0, a=parseInt(v('アルバイト数'))||0;
+  const payload = {
+    store_name:v('店名'), license_name:v('免許取得名'), furigana:v('フリガナ'),
+    address:住所, phone:v('電話番号'), fax:v('FAX番号'),
+    representative:v('代表者氏名'), representative_dob:v('代表者生年月日'),
+    successor:v('後継者氏名'), successor_dob:v('後継者生年月日'),
+    successor_status:v('後継者状況'), successor_role:v('後継者役職'),
+    staff_full:s, staff_part:p, staff_temp:a, staff_total:s+p+a,
+    management_policy:v('経営理念'), business_type:selected.業態, location_type:selected.立地,
+    business_hours:(v('営業時間開始')&&v('営業時間終了'))?v('営業時間開始')+'〜'+v('営業時間終了'):'',
+    holiday:v('定休日'), nearest_station:v('最寄り駅'),
+    sake_approach:v('日本酒への取り組みと営業方針'),
+    annual_sales_k:v('年間売上高')?parseFloat(v('年間売上高')):null,
+    sake_sales_k:v('内清酒売上高')?parseFloat(v('内清酒売上高')):null,
+    buyer:v('仕入担当者'), buyer_role:v('仕入担当者役職'),
+    sake_brands:v('主な取扱い日本酒銘柄'), key_brands:v('重点銘柄'),
+    floor_area:v('売場面積')?parseFloat(v('売場面積')):null,
+    cooler_info:v('清酒用リーチインクーラー'),
+    warehouse_area:v('倉庫面積')?parseFloat(v('倉庫面積')):null,
+    air_conditioning:v('空調設備'), inquiry_reason:v('問い合わせに至る経緯')
+  };
+  try {
+    const res = await fetch(WEBHOOK_URL, {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
+    });
+    if (res.ok) {
+      document.getElementById('form-area').style.display='none';
+      document.getElementById('success').style.display='block';
+      window.scrollTo({top:0,behavior:'smooth'});
+    } else { throw new Error('HTTP '+res.status); }
+  } catch(e) {
+    document.getElementById('alert-net').classList.add('show');
+    console.error(e);
+  }
+  document.getElementById('confirm-modal').classList.remove('show');
+  btn.disabled=false; btn.textContent='この内容で送信する';
+}
+
+/* 確認モーダル */
+function showConfirm() {
+  document.getElementById('alert-err').classList.remove('show');
+  document.getElementById('alert-net').classList.remove('show');
+  if (WEBHOOK_URL === "YOUR_N8N_WEBHOOK_URL_HERE") {
+    document.getElementById('webhook-banner').classList.add('show');
+    document.getElementById('webhook-banner').scrollIntoView({behavior:'smooth',block:'nearest'});
+    return;
+  }
+  if (!validate()) {
+    document.getElementById('alert-err').classList.add('show');
+    document.getElementById('alert-err').scrollIntoView({behavior:'smooth',block:'nearest'});
+    return;
+  }
+  const addr = [v('都道府県'),v('市区町村'),v('番地以降')].filter(Boolean).join(' ');
+  const hours = (v('営業時間開始')&&v('営業時間終了')) ? v('営業時間開始')+' 〜 '+v('営業時間終了') : '';
+  const fmt = (n,unit) => n ? Number(n).toLocaleString()+' '+unit : '';
+  const sections = [
+    { title:'01 — 基本情報', rows:[
+      ['店名',       v('店名')],
+      ['免許取得名', v('免許取得名')],
+      ['フリガナ',   v('フリガナ')],
+    ]},
+    { title:'02 — 所在地・連絡先', rows:[
+      ['郵便番号',  v('郵便番号')],
+      ['住所',      addr],
+      ['電話番号',  v('電話番号')],
+      ['FAX番号',   v('FAX番号')],
+    ]},
+    { title:'03 — 代表者情報', rows:[
+      ['代表者氏名',    v('代表者氏名')],
+      ['代表者生年月日',v('代表者生年月日')],
+    ]},
+    { title:'04 — 後継者情報', rows:[
+      ['後継者氏名',    v('後継者氏名')],
+      ['後継者生年月日',v('後継者生年月日')],
+      ['後継者状況',    v('後継者状況')],
+      ['後継者役職',    v('後継者役職')],
+    ]},
+    { title:'05 — 従業員構成', rows:[
+      ['社員',      fmt(v('社員数'),'人')],
+      ['パート',    fmt(v('パート数'),'人')],
+      ['アルバイト',fmt(v('アルバイト数'),'人')],
+      ['合計',      document.getElementById('total-display').textContent],
+    ]},
+    { title:'06 — 業態・立地・経営', rows:[
+      ['経営理念',  v('経営理念')],
+      ['業態',      selected.業態.join('、')],
+      ['立地',      selected.立地.join('、')],
+    ]},
+    { title:'07 — 営業情報', rows:[
+      ['営業時間',  hours],
+      ['定休日',    v('定休日')],
+      ['最寄り駅',  v('最寄り駅')],
+    ]},
+    { title:'08 — 日本酒への取り組み', rows:[
+      ['取り組みと営業方針', v('日本酒への取り組みと営業方針')],
+    ]},
+    { title:'09 — 売上・仕入', rows:[
+      ['年間売上高',      fmt(v('年間売上高'),'千円')],
+      ['内 清酒売上高',   fmt(v('内清酒売上高'),'千円')],
+      ['仕入担当者',      v('仕入担当者')],
+      ['仕入担当者役職',  v('仕入担当者役職')],
+      ['主な取扱い銘柄',  v('主な取扱い日本酒銘柄')],
+      ['重点銘柄',        v('重点銘柄')],
+    ]},
+    { title:'10 — 店舗概況', rows:[
+      ['売場面積',          fmt(v('売場面積'),'坪')],
+      ['倉庫面積',          fmt(v('倉庫面積'),'坪')],
+      ['リーチインクーラー',v('清酒用リーチインクーラー')],
+      ['空調設備',          v('空調設備')],
+    ]},
+    { title:'11 — お問い合わせ経緯', rows:[
+      ['経緯', v('問い合わせに至る経緯')],
+    ]},
+  ];
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  document.getElementById('confirm-body').innerHTML = sections.map(sec =>
+    `<div class="confirm-section">
+      <p class="confirm-section-title">${sec.title}</p>
+      ${sec.rows.map(([lbl,val]) =>
+        `<div class="confirm-row">
+          <span class="confirm-label">${lbl}</span>
+          <span class="confirm-value">${val ? esc(val) : '<span class="confirm-empty">—</span>'}</span>
+        </div>`
+      ).join('')}
+    </div>`
+  ).join('');
+  const modal = document.getElementById('confirm-modal');
+  modal.classList.add('show');
+  modal.scrollTop = 0;
+}
+
+function closeConfirm() {
+  document.getElementById('confirm-modal').classList.remove('show');
+}
+
+function onModalOverlayClick(e) {
+  if (e.target === document.getElementById('confirm-modal')) closeConfirm();
+}
+
+/* リセット */
+function resetForm() {
+  document.querySelectorAll('input:not([type=hidden]),select,textarea').forEach(el=>{ el.value=el.type==='number'?'':el.tagName==='SELECT'?el.options[0].value:''; });
+  document.querySelectorAll('[type=hidden]').forEach(el=>el.value='');
+  selected.業態=[]; selected.立地=[];
+  document.querySelectorAll('.toggle-btn,.radio-btn').forEach(b=>b.classList.remove('on'));
+  calcTotal();
+  document.getElementById('form-area').style.display='block';
+  document.getElementById('success').style.display='none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* フェードイン */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => io.observe(el));
+
+/* Webhook未設定チェック */
+if (WEBHOOK_URL === "YOUR_N8N_WEBHOOK_URL_HERE") {
+  document.getElementById('webhook-banner').classList.add('show');
+}
+</script>
+</body>
+</html>
