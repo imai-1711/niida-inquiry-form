@@ -466,6 +466,12 @@ footer { padding: 36px var(--pad-x); text-align: center; font-size: 11px; color:
         <p class="err-msg">正しい形式で入力してください</p>
       </div>
     </div>
+    <div class="field" id="f-担当者メールアドレス">
+      <label>担当者メールアドレス<span class="req-star">*</span></label>
+      <input type="email" id="担当者メールアドレス" placeholder="example@example.com">
+      <p class="field-hint">入力内容の控えをこちらのアドレスにお送りします</p>
+      <p class="err-msg">正しいメールアドレスを入力してください</p>
+    </div>
   </div>
 
   <!-- ③ 代表者情報 -->
@@ -797,10 +803,12 @@ function setErr(id) { document.getElementById('f-'+id)&&document.getElementById(
 function validate() {
   let ok = true;
   const phoneRe = /^[\d\-\(\)\s]+$/;
-  ['店名','電話番号','FAX番号','住所','業態','立地','社員数','パート数','アルバイト数','年間売上高','内清酒売上高','売場面積','倉庫面積'].forEach(clrErr);
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  ['店名','電話番号','FAX番号','担当者メールアドレス','住所','業態','立地','社員数','パート数','アルバイト数','年間売上高','内清酒売上高','売場面積','倉庫面積'].forEach(clrErr);
   if (!v('店名').trim()) { setErr('店名'); ok=false; }
   if (!v('電話番号').trim() || !phoneRe.test(v('電話番号'))) { setErr('電話番号'); ok=false; }
   if (v('FAX番号') && !phoneRe.test(v('FAX番号'))) { setErr('FAX番号'); ok=false; }
+  if (!v('担当者メールアドレス').trim() || !emailRe.test(v('担当者メールアドレス'))) { setErr('担当者メールアドレス'); ok=false; }
   if (!v('都道府県') && !v('番地以降')) { setErr('住所'); ok=false; }
   if (!selected.業態.length) { setErr('業態'); ok=false; }
   if (!selected.立地.length) { setErr('立地'); ok=false; }
@@ -828,7 +836,7 @@ async function handleSubmit() {
   const s=parseInt(v('社員数'))||0, p=parseInt(v('パート数'))||0, a=parseInt(v('アルバイト数'))||0;
   const payload = {
     store_name:v('店名'), license_name:v('免許取得名'), furigana:v('フリガナ'),
-    address:住所, phone:v('電話番号'), fax:v('FAX番号'),
+    address:住所, phone:v('電話番号'), fax:v('FAX番号'), contact_email:v('担当者メールアドレス'),
     representative:v('代表者氏名'), representative_dob:v('代表者生年月日'),
     successor:v('後継者氏名'), successor_dob:v('後継者生年月日'),
     successor_status:v('後継者状況'), successor_role:v('後継者役職'),
@@ -887,10 +895,11 @@ function showConfirm() {
       ['フリガナ',   v('フリガナ')],
     ]},
     { title:'02 — 所在地・連絡先', rows:[
-      ['郵便番号',  v('郵便番号')],
-      ['住所',      addr],
-      ['電話番号',  v('電話番号')],
-      ['FAX番号',   v('FAX番号')],
+      ['郵便番号',          v('郵便番号')],
+      ['住所',              addr],
+      ['電話番号',          v('電話番号')],
+      ['FAX番号',           v('FAX番号')],
+      ['担当者メールアドレス', v('担当者メールアドレス')],
     ]},
     { title:'03 — 代表者情報', rows:[
       ['代表者氏名',    v('代表者氏名')],
